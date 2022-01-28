@@ -1,3 +1,4 @@
 This code uses a variety of regression analyses to relate spectral reflecatnce with absolute age of alluval fan surfaces. 
-Data and is sourced from D'Arcy et al., 2016, with research concepts copied from this publication. 
+- Original data and is sourced from D'Arcy et al., 2016, with research concepts copied from this publication. 
+- The .rmd file prints to the attached .PDF file. The project shell and scripts run in numerical order to produce this work.
 
