@@ -1,0 +1,3 @@
+"0",""
+"0","legend(""topright"", legend = c(""arbutus"", ""dead maple"", ""fir"", ""rock"", ""soil""), "
+"0","       lty = 1, bty = ""n"", lwd = 1, col = c(""red"", ""purple"", ""darkgreen"", ""black"", ""brown""))"

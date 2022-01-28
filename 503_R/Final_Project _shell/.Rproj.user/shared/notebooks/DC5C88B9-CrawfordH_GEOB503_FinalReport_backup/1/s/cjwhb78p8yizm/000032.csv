@@ -1,0 +1,6 @@
+"0","# Table: model stats"
+"0","table_cap <- ""Model statistics. Where applicable, all model coefficients are significant to the < 0.0001 (exc. $\\beta$_2~ Quadradic (indv.) < 0.01; $\\beta$~2~ and $\\gamma$ Quadradic (strat. unit.) < 0.01 and < 0.05, respectivly; Quadradic model (strat. unit.) < 0.001"""
+"0",""
+"0","load(file = here::here(""data"", ""model_stats.rda""))"
+"0","names(model_stats) <- c(""Method"", ""$\\alpha$"", ""$\\gamma$"", ""$\\beta$~2~"" ,""RSE"", ""R^2^ adj."")"
+"0","knitr::kable(model_stats, align = ""lccccr"", booktabs = TRUE, caption = table_cap, longtable = TRUE, digits = c(NA,3,3,5,3,3)) "

@@ -1,0 +1,7 @@
+"0","fig_cap <- paste("
+"0","  ""Plot of daily ozone concentration versus daily solar radiation with a best-fit regression line shown."","
+"0","  ""The figure was imported from a pdf file."""
+"0",")"
+"0","fig_lab <- ""(\\#fig:o3-solar-pdf)"""
+"0","full_cap <- paste(fig_lab, fig_cap)"
+"0","include_graphics(here::here(""outputs"", ""o3_solar.pdf""))"

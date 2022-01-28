@@ -1,0 +1,7 @@
+"0","ok <- read.csv(here::here(""data"", ""OKinflow.csv"")) %>%"
+"0","  dplyr::select(t = Year, x1 = swe2F08Apr1, x2 = swe2F05PApr1, "
+"0","                x3 = swe2F04Apr1, x4 = Pkel.ApJun, x5 = InfMarch, "
+"0","                y = InfApJul)"
+"2","cannot open file 'C:/Users/htccr/OneDrive/UBC WT2/GEOB503/Final_Project/data/OKinflow.csv': No such file or directory"
+"2","Error in file(file, ""rt"") : cannot open the connection
+"

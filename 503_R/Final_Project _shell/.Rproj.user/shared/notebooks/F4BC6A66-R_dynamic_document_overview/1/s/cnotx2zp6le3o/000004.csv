@@ -1,0 +1,4 @@
+"0","tab_df <- data.frame(col_1, col_2) "
+"0","names(tab_df) <- c(""Roman"", ""$\\Gamma \\rho \\epsilon \\epsilon \\kappa$"")"
+"0","knitr::kable(tab_df, align = c('c', 'c'), booktabs = TRUE, caption = full_cap, "
+"0","             longtable = TRUE, escape = FALSE)"

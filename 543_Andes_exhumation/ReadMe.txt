@@ -1,0 +1,1 @@
+Code to train, validate, test,analyze, and save the MLP model can be found in the '543_MLP_model.ipynb' file. The '543_final_analysis.ipynb' code just reads in all the same information, but is used to just plot the reuslts. 

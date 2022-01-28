@@ -1,0 +1,7 @@
+"0","table_cap <- ""List of reference formats supported by Pandoc"""
+"0","format <- c(""MODS"", ""BibLaTeX"", ""BibTeX"", ""RIS"", ""EndNote"", ""EndNote XML"", ""ISI"", ""MEDLINE"", ""Copac"")"
+"0","file_ext <- c("".mods"", "".bib"", "".bibtex"", "".ris"", "".enl"", "".xml"", "".wos"", "".medline"", "".copac"")"
+"0","bib.df <- data.frame(format, file_ext)"
+"0","names(bib.df) <- c(""Format"", ""File extension"")"
+"0","knitr::kable(bib.df, align = c('l', 'l'), longtable = TRUE, format = 'pandoc',"
+"0","             caption = paste0(table_cap, ""\\label{tab:bibtable}""))"

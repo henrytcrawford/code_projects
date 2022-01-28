@@ -1,0 +1,25 @@
+{
+    "id": "2CC46721",
+    "path": "C:/Users/htccr/OneDrive/UBC WT2/GEOB503/Final_Project _shell/document_files/CrawfordH_GEOB503_FinalReport.Rmd",
+    "project_path": "document_files/CrawfordH_GEOB503_FinalReport.Rmd",
+    "type": "r_markdown",
+    "hash": "3808383478",
+    "contents": "",
+    "dirty": false,
+    "created": 1619301088784.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "cursorPosition": "67,738",
+        "scrollLine": "0",
+        "ignored_words": "reflectance,multispectral,dataset,homoscedastic\n"
+    },
+    "folds": "47|18|65|0|\n75|41|105|0|\n117|54|123|0|\n125|45|142|0|\n152|54|158|0|\n162|54|168|0|\n187|35|193|0|\n195|35|201|0|\n203|35|209|0|\n211|51|217|0|\n221|32|234|0|\n238|70|244|0|\n258|70|264|0|\n266|38|272|0|\n284|33|292|0|\n",
+    "lastKnownWriteTime": 1619358993,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1619358993362,
+    "read_only": false,
+    "read_only_alternatives": []
+}

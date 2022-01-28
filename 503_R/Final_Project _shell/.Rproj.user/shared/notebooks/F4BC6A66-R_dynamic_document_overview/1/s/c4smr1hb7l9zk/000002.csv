@@ -1,0 +1,35 @@
+"0","# include all libraries required by the R chunks here"
+"0","library(ggplot2)"
+"0","library(knitr)"
+"0","library(here)"
+"0","library(bookdown)"
+"0","library(magrittr)"
+"2","
+Attaching package: ‘magrittr’
+
+"
+"2","The following object is masked from ‘package:purrr’:
+
+    set_names
+
+"
+"2","The following object is masked from ‘package:tidyr’:
+
+    extract
+
+"
+"0","library(tidyr)"
+"0","library(dplyr)"
+"0","library(lubridate)"
+"2","package ‘lubridate’ was built under R version 4.0.4"
+"2","
+Attaching package: ‘lubridate’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    date, intersect, setdiff, union
+
+"
+"0","library(broom)"
+"2","package ‘broom’ was built under R version 4.0.4"

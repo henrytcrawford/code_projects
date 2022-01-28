@@ -1,0 +1,1 @@
+"0","lines(rock$wavelength, rock$mean_ref, col = ""black"")"

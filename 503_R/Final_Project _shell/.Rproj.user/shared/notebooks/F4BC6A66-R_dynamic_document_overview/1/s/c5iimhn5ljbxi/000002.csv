@@ -1,0 +1,5 @@
+"0","table_lab <- ""(\\#tab:greek-roman)"""
+"0","table_cap <- ""Comparison of the first five Roman and Greek lower-case letters."""
+"0","full_cap <- paste0(table_lab, table_cap)"
+"0","col_1 <- letters[1:5]"
+"0","col_2 <-  c(""$\\alpha$"", ""$\\beta$"", ""$\\gamma$"", ""$\\delta$"", ""$\\epsilon$"")"

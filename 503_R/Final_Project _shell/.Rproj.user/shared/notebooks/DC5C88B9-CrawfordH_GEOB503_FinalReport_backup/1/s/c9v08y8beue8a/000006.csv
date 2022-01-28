@@ -1,0 +1,5 @@
+"0","# Table: model stats"
+"0","table_cap <- ""Logarithmic Transformation model statistics. Index statistics for predicted alluvial fan surface ages as a funtion of Landsat-8 Band6/Band2 spectral ratio. Back-transformation was bias corrected using methods outlined by @baskerville1972"""
+"0",""
+"0","load(file = here::here(""data"", ""log_trans_stats.rda""))"
+"0","knitr::kable(log_trans_stats, digits = 1, booktabs = TRUE, caption = table_cap)"

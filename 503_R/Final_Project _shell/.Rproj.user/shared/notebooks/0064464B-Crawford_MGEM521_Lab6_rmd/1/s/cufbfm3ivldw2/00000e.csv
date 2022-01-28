@@ -1,0 +1,1 @@
+"0","lines(soil$wavelength, soil$mean_ref, col = ""brown"")"

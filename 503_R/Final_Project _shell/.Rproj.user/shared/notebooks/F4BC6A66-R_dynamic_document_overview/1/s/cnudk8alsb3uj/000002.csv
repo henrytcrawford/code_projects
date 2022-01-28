@@ -1,0 +1,16 @@
+"0","broom_cite <- citation(""broom"")"
+"0","toBibtex(broom_cite)"
+"1","@Manual{,
+"
+"1","  title = {broom: Convert Statistical Objects into Tidy Tibbles},
+"
+"1","  author = {David Robinson and Alex Hayes and Simon Couch},
+"
+"1","  year = {2021},
+"
+"1","  note = {R package version 0.7.5},
+"
+"1","  url = {https://CRAN.R-project.org/package=broom},
+"
+"1","}
+"

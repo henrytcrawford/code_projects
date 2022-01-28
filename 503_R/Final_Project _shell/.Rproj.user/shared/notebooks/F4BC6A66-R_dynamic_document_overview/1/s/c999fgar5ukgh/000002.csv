@@ -1,0 +1,8 @@
+"0","table_cap <- ""Table with two columns of random numbers between 0 and 10"""
+"0","table_lab <- ""appruntable"""
+"0","full_cap <- paste0(table_cap, ""\\label{tab:"", table_lab, ""}"")"
+"0","x <- runif(5, 0, 10)"
+"0","y <- runif(5, 0, 10)"
+"0","df <- data.frame(x, y)"
+"0","knitr::kable(df, digits = 3, align = c('c', 'c'), longtable = TRUE, format = 'pandoc',"
+"0","             caption = full_cap)"

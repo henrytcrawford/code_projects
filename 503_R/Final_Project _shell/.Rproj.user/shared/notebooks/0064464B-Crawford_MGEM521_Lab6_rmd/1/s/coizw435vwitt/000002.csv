@@ -1,0 +1,8 @@
+"0","PRI_all <- c(a_PRI, d_PRI, f_PRI, r_PRI, s_PRI)"
+"0","SIPI_all <- c(a_SIPI, d_SIPI, f_SIPI, r_SIPI, s_SIPI)"
+"0","ND705_all <- c(a_ND705, d_ND705, f_ND705, r_ND705, s_ND705)"
+"0","spectra <- c(""Arbutus"", ""Dead Maple"", ""Fir"", ""Rock"", ""Soil"")"
+"0","indices <- data.frame(spectra, PRI_all, SIPI_all, ND705_all)"
+"0","names(indices) <- c(""Sample Type"", ""PRI"", ""SIPI"", ""ND~705~"")"
+"0","table1_cap <- ""Table 1. Index values for the five samples"""
+"0","knitr::kable(indices, align = c(""l"",""l"",""l"",""l""), caption = table1_cap)"

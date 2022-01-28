@@ -1,0 +1,306 @@
+---
+title: "Analysis of Experimental verus Absolute Age Dates of Alluvial Fan Surfaces"
+subtitle: "Geography 503 Term project"
+author: | 
+  | Henry Crawford
+  | *email*: hcrawford@eoas.ubc.ca
+date: "`r format(Sys.time(), '%Y-%B-%d')`"
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    keep_tex: true
+  bookdown::word_document2:
+    toc: yes
+  bookdown::html_document2:
+    number_sections: yes
+    theme: default
+    toc: yes
+    toc_float: yes
+bibliography: [final_project.bib, final_packages.bib]
+csl: american-geophysical-union.csl
+header-includes:
+- \usepackage{float}
+- \floatplacement{figure}{H}
+- \usepackage{longtable}
+- \usepackage{setspace}\onehalfspacing
+- \usepackage[document]{ragged2e}
+- \usepackage{booktabs}
+abstract: This analysis attempts to regress spectral attributes with absolute ages for thirty-three alluvial fan surfaces in Owens Valley, California. After idenitfying a potential realtion between Landsat-8 Band6/Band2 brightness and age, several regression models were tested.  This includes a linear regression, log transformation, quadratic formula, Nonlinear Least Squares regression without weights, and a Nonlinear Least Squares regression with weights and iterative starting variables. The bias corrected log transformation provided the best overall fit. Predicted versus observed age error show reasonable small RMSE, MAE, and MBE and verify the models overall accuracy and even distribution of age residuals. 
+---
+
+```{R, include = FALSE}
+# include all libraries required by the R chunks here
+library(knitr)
+library(kableExtra)
+library(here)
+library(bookdown)
+library(dplyr)
+library(tidyverse)
+library(float)
+library(ggplot2)
+```
+
+\newpage
+
+# Introduction
+```{r, echo=FALSE}
+# datasets needed for data reference
+raw_data <- read.csv(here::here("data", "fan_data_raw.csv"), stringsAsFactors = TRUE)
+raw_data <- round(raw_data[3:4], digits = 1)
+
+load(here::here("data", "fan_data_raw_B6B2.rda"))
+raw <- round(raw[,20], digits = 3)
+
+load(file = here::here("data", "all_fans_B6B2.rda"))
+all_fans_age <- round(all_fans[1:2], digits = 1)
+all_fans_B6B2 <- round(all_fans[19], digits = 3)
+
+
+load(file = here::here("data", "Q1.rda"))
+Q1 <- round(Q1, digits = 1)
+
+load(file = here::here("data", "log_trans_stats.rda"))
+log_trans_stats_num <- round(log_trans_stats[2], digits = 1)
+```
+
+Alluvial fans are sedimentary landforms deposited where mountain catchments enter sedimentary basins. These deposits contain important records of how eroding landscapes have reacted to past changes in climate and environmental conditions [@brooke2018; @mason2018]. However, traditional methods of surface dating can be costly and timely [@owen2011]. The study location and alluvial fans of Owens Valley, California provide a well constrained location to test new surface age dating techniques. Dates of the alluvial surfaces in this semi-arid environment are well constrained in that 89 ^10^Be radiogenic nuclide dates have been collected across the fans [@darcy2015] along with further refinement by complementary methods [@darcy2017]. The result is 33 absolute surface dates of alluvial fans ranging from `r min(raw_data[3,])` to `r max(raw_data[3,])` thousand years (ka). These absolute dates can be used to test the effectiveness of an alternative method of dating, which is the weathering of fan surfaces as identified through remotely sensed Landsat-8 multispectral imagery. The feasibility of this methodology relies on two main factors. The first is known observation of *in-situ* production of secondary illite clay material and iron oxide by the weathering of granitic rocks in semi-arid environments [@darcy2018; @zehfuss2001]. The second being that the mineralogical properties of rocks determines their spectral signature, which can be detected as reflectance values distributed across the electromagnetic spectrum [@kokaly2017]. In summary, changes in the mineral composition of surface material by weathering will result in related changes to the reflectance values of these surfaces. Landsat-8 multispectral satellite imagery can provide spectral information in the visible to shortwave infrared (0.4–2.5 $\mu$m) range of the electromagnetic spectrum through several spectral bands [@unitedstatesgeologicalsurveyusgs2019]. Due to the widely available and large coverage of Landsat-8 imagery, a successful relation between spectral data and fan age may provide access to landscape-level age analysis where traditional data techniques are limited.  
+
+Data used for this analysis is modified from the supplementary dataset by (@darcy2018)(Table \@ref(tab:raw-data)). The dataset is a compilation of absolute ages for 33 alluvial fan surfaces derived by ^10^Be radiogenic nuclide dating techniques [@darcy2017; @darcy2015]. The spectral signature of each alluvial fan surface was attributed by @darcy2018 who 1) obtained Landsat-8 imagery with coverage of Owens Valley, CA, 2) applied a Balance Contrast Enhancement Technique (BCET) to these images, 3) spot sampled within the 33 dated alluvial fan surfaces. The BCET technique adjusts the histogram of each spectral band to reflect the same mean and range values, and in doing so, effectively removes color bias and enables an even comparison of brightness between bands (Liu and Mason, 2016). Spot sampling can be used to characterize surface reflectance over large alluvial fan surfaces, while actively avoiding unwanted features whose spectral data should not be mixed [@dickerson2015]. This analysis will attempt to regress a relationship between the absolute ages of alluvial fan surfaces in Owens Valley California with respective Landsat-8 multispectral data. 
+\newpage
+
+# Data processing and manipulation
+## Spectral data
+
+```{r raw-data, echo=FALSE, escape=FALSE}
+# Table: Raw Data
+table_lab <- "(#\\tab:raw-data)"
+table_cap <- "Landsat-8 spectral data summary from 33 individual spot samples taken across eight alluvial fan surfaces." 
+
+
+raw_data <- read.csv(here::here("data", "fan_data_raw.csv"), stringsAsFactors = TRUE)
+
+knitr::kable(raw_data, align = "l", booktabs = TRUE, escape = FALSE, 
+             caption = table_cap, digits = 1,
+             col.names = c("Alluvial Fan", "Surface", "Age (Ka)", "$\\pm$", "No. Spots", "Band 1",
+                           "$\\pm$","Band 2", "$\\pm$", "Band 3", "$\\pm$", "Band 4", "$\\pm$", 
+                           "Band 5", "$\\pm$", "Band 6", "$\\pm$","Band 7", "$\\pm$")) %>%
+  kable_styling(latex_options = "scale_down")
+
+
+#add due to figure re-order
+raw_data <- read.csv(here::here("data", "fan_data_raw.csv"), stringsAsFactors = TRUE)
+raw_data <- round(raw_data[3:4], digits = 1)
+
+load(here::here("data", "fan_data_raw_B6B2.rda"))
+raw <- round(raw[,20], digits = 3)
+
+load(file = here::here("data", "all_fans_B6B2.rda"))
+all_fans_age <- round(all_fans[1:2], digits = 1)
+all_fans_B6B2 <- round(all_fans[19], digits = 3)
+
+
+load(file = here::here("data", "Q1.rda"))
+Q1 <- round(Q1, digits = 1)
+```
+
+The first goal of this analysis was to identify any spectral changes occurring as a function of surface age. To accomplish this, individual fan surfaces, and their associated spectral attributes, were grouped based on relative ages as identified by levels of incision in @darcy2015. These stratigraphic units and their calculated mean absolute ages are as follows: *Q4* (`r all_fans_age[1,1]` $\pm$ `r all_fans_age[1,2]` ka), *Q3* (`r all_fans_age[2,1]` $\pm$ `r all_fans_age[2,2]` ka), *Q2c* (`r all_fans_age[3,1]` $\pm$ `r all_fans_age[3,2]` ka), *Q2b* (`r all_fans_age[4,1]` $\pm$ `r all_fans_age[4,2]` ka), *Q2a* (`r all_fans_age[5,1]` $\pm$ `r all_fans_age[5,2]` ka), *Q1* (`r Q1[1]` $\pm$ `r Q1[2]` ka)(Table \@ref(tab:data-summary)). Changes in the stratigraphic unit nomenclature by number correspond with larger increases in age, where changes in letter correspond with changes of closely aged fans. In short, the dataset has a range of surfaces ages from `r min(raw_data[3,])` to `r max(raw_data[3,])` ka, with Q4 representing the oldest fans and Q1a the youngest (Table \@ref(tab:raw-data)). Relative brightness measures of Landsat-8 spectral bands 1-7 for each stratigraphic unit are shown in Figure \@ref(fig:landsat-bands). Mean band reflectance $\pm$ 1 $\sigma$ calculated from \@ref(tab:raw-data). 
+
+While there is no overall change in relative reflectance between the stratigraphic units, a clear shift in slope can be seen with age. Specifically, older surfaces appear to reflect higher in the shorter-wave bands (*e.g* Bands 1 and 2) and lesser in the longer-wave bands (*e.g.* Bands 6 and 7). This shift in slope is quantified by calculating a ratio of Band 6 to Band 7 (B6/B2) reflectance for each of the 33 alluvial fan surfaces as shown in Equation \@ref(eq:band-ratio). 
+\begin{equation}
+  B6/B2 = Band\,6 / Band\,2
+  (\#eq:band-ratio)
+\end{equation}
+
+The resulting ratio ranges from `r min(raw)` to `r max(raw)` with increasing age of individual fan surfaces (Table \@ref(tab:raw-data)), and similarly from `r min(all_fans_B6B2)` to `r max(all_fans_B6B2)` between aging stratigraphic units (Table \@ref(tab:data-summary)). This general trends suggests the potential for a regression. 
+
+```{r,fig.cap=full_cap, echo=FALSE, out.height= "60%"}
+fig_lab <- "(\\#fig:landsat-bands)"
+fig_cap <- "Relative brightness of the stratigraphic units. The realtive brightness axes values (80-120) remian consistant across units. Stratigraphic units Q1b and Q1a were ploted as one due to similar spectral signatures and age relative to the other five groups."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "rel_bright_lims_edit.jpeg"))
+```
+
+```{r data-summary, echo=FALSE, escape=FALSE}
+# Table: summarized data
+table_lab <- "(#\\tab:data-summary)"
+table_cap <- "Data summary of the seven grouped stratigraphic units of similar age. Age data calculated from 33 absolute age dates of alluvial fan surfaces, and Landsat-8 spectral data from 96 spot samples. The Band 6/2 ratio is calculated."
+
+load(file = here::here("data", "all_fans_B6B2.rda"))
+aft <- na.omit(all_fans)
+aft <- data.frame(aft$surface, aft$age, aft$age_sd, aft$tot_spots,
+                  aft$B1, aft$B1_sd, aft$B2, aft$B2_sd, aft$B3, aft$B3_sd, aft$B4, aft$B4_sd,
+                  aft$B5, aft$B5_sd,aft$B6, aft$B6_sd, aft$B7, aft$B7_sd, aft$B6B2)
+
+knitr::kable(aft, align = "lcccccccccccccccccr", booktabs = TRUE, escape = FALSE, 
+             caption = table_cap, digits = c(rep(1,18),3),
+             col.names = c("Surface", "Age (Ka)", "$\\pm$", "No. Spots", "Band 1", "$\\pm$", 
+                "Band 2", "$\\pm$", "Band 3", "$\\pm$", "Band 4", "$\\pm$", "Band 5", 
+                "$\\pm$", "Band 6", "$\\pm$","Band 7", "$\\pm$", "Bands 6/2")) %>%
+  kable_styling(latex_options = "scale_down")
+```
+
+\newpage
+## Linear Regression
+Linear regressions were calculated for the 33 individual fan surfaces (surfaces) and the 7 stratigraphic averages using Equation \@ref(eq:mod-lin), and shown in Figure \@ref(fig:mod-lm). Regressing the stratigraphic units of similar age adds the benefit of a potentially improved signal/noise ratio. The linear model in Figure \@ref(fig:mod-lm) provides a first-order confirmation of the positive relationship between the B6/B2 ratio and alluvial fan surface age. However, it is clearly noted in the diagnostic plots that this relation has heteroscedastic residuals and a non-normal distribution. The inverse-U shape of the residuals, as drawn by the loess curve fit (span =1), indicates a concave down non-linear relation. This is further supported by the increased residual frequencies and opposing residual distributions along the tails of the error histogram and theoretical quantiles plots, respectively. 
+\begin{equation}
+  B6/B2 = \alpha + \beta_{1}(\operatorname{age}) + \epsilon
+  (\#eq:mod-lin)
+\end{equation}
+
+```{r,fig.cap=full_cap, echo=FALSE, out.height= "60%"}
+fig_lab <- "(\\#fig:mod-lm)"
+fig_cap <- "Linear regression of the B6/B2 brightness ratio and age, by both individual sample locations and stratigraphic units of similar age. Regression models shown (topleft) and diagnostic plots of residuals shown (topright, bottomleft, bottomright)."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "plot_lm_all.jpeg"))
+```
+
+## Nonlinear Regressions
+
+```{r,fig.cap=full_cap, echo=FALSE, out.width= "100%"}
+fig_lab <- "(\\#fig:plot-loess)"
+fig_cap <- "Loess curve, with a span of 1, representing the relation between B6/B2 brightness and age across the individual alluvial fan surfaces."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "plot_lm_loess.jpeg"))
+```
+
+The loess curve (span = 1) drawn for the dataset in Figure \@ref(fig:plot-loess) depicts an obvious concave-down power law relation. In an effort to fit this curve mathematically we attempt the following: a log-log transformation as Equation \@ref(eq:mod-log), a quadratic as Equation \@ref(eq:mod-quad), a Nonlinear Least Squares regression (NLS) without weights as Equation \@ref(eq:mod-nls), and a Nonlinear Least Squares regression (NLS) with weights and iterative starting variables (*i.e.* $\alpha$ and $\gamma$) as Equation \@ref(eq:mod-nls). The results of these models can be seen in Figures \@ref(fig:mod-log), Figure \@ref(fig:mod-quad), Figure \@ref(fig:mod-nls), and Figure \@ref(fig:mod-nlsw), respectively. 
+
+\begin{equation}
+  \log(B6/B2) = \log(\alpha) + \gamma \log(\operatorname{age}) + \log(\epsilon)
+  (\#eq:mod-log)
+\end{equation}
+
+\begin{equation}
+  B6/B2 = \alpha + \beta_{1}(\operatorname{age}) + \beta_{2}(\operatorname{age^2}) + \epsilon
+  (\#eq:mod-quad)
+\end{equation}
+
+\begin{equation}
+  B6/B2 = \alpha \cdot (\operatorname{age}) ^ \gamma + \epsilon
+  (\#eq:mod-nls)
+\end{equation}
+
+```{r,fig.cap=full_cap, echo=FALSE}
+fig_lab <- "(\\#fig:mod-log)"
+fig_cap <- "Log-log transformation and regression of the B6/B2 brightness ratio and alluval fan surface age. Represented with both log-transformed axes (left) and arithmetic (right)."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "mod_log.jpeg"))
+```
+
+```{r,fig.cap=full_cap, echo=FALSE}
+fig_lab <- "(\\#fig:mod-quad)"
+fig_cap <- "Quadratic model regressing the B6/B2 brightness ratio and alluval fan surface age."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "mod_quad.jpeg"))
+```
+
+```{r,fig.cap=full_cap, echo=FALSE}
+fig_lab <- "(\\#fig:mod-nls)"
+fig_cap <- "Nonlinear Least Squares regression, unweighted, of the B6/B2 brightness ratio and alluval fan surface age. Initial starting variables $\\alpha$ and $\\gamma$ are derived from the quadratic regression."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "NLS_unweighted.jpeg"))
+```
+
+```{r,fig.cap=full_cap, echo=FALSE, escape = FALSE}
+fig_lab <- "(\\#fig:mod-nlsw)"
+fig_cap <- "Nonlinear Least Squares regression, weighted, of the B6/B2 brightness ratio and alluval fan surface age. Initial starting variables $\\alpha$ and $\\gamma$ are derived from the quadratic regression. Starting variables were iterative until a change of 1e-6 or less was detected. Both the individual fan surfaces and stratigraphic units regressions applied three iterations."
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "NLS_weighted.jpeg"))
+```
+
+The eight nonlinear regressions all show major improvements to fitting the data compared to the linear regression models (\@ref(fig:mod-lm)). This is qualitatively evident in the tails of the data as the age approaches 0 ka and 122.5 ka. A statistical summary of model results can be referenced in Table \@ref(tab:model-stats). All model coefficients are significant to the < 0.0001 with the exception of: $\beta_2$ in Quadratic (indv.) (< 0.01), $\beta_2$ and $\gamma$ in Quadratic (strat. unit.) (< 0.05 and < 0.01, respectively), and the Quadratic model (strat. unit.) as a whole (< 0.001). This high level of significance for all models and model coefficients (exc. $\beta_2$ of the stratigraphic unit Quadratic model), does not provide strong means to reject any one model. The accuracy of a regression analysis is often described using the coefficient of determination, or R^2^ value. The coefficient of determination value represents the proportion of the variance in one variable that is predictable from the other variable [@everitt2002]. Table \@ref(tab:model-stats) highlights how regressions calculated from the stratigraphic averages show improved adjusted R^2^ values compared to those of the individual fan surfaces. However, while providing some guidance, this statistic may also be misleading and model accuracy is better represented by the residual standard error (RSE) and degrees of freedom (DF). Here, we can see the individual fan surface models showing slightly higher RSE but with many more degrees of freedom, adding to the power to the model results. Statistically, there are no major deciding differences between the eight models aside from the individual fan surface models having and increased overall robustness. A qualitative analysis of Figures \@ref(fig:mod-log) - \@ref(fig:mod-nlsw) can provide more reason. Here, we can the log-transform (Figure \@ref(fig:mod-log)) as providing the most consistency between the individual and stratigraphic unit regressions. And although there are often limits to the range of *x* values that a power law equation can be applied for any one relationship [@clauset2009], this transformation displays the most reasonable fit to the tail ends to the distribution. 
+
+```{r model-stats, echo = FALSE}
+# Table: model stats
+table_lab <- "(#\\tab:model-stats)"
+table_cap <- "Model output statistics for the individual fan surfaces (indv.) and stratigraphic units (strat. unit). All model coefficients are significant to the < 0.0001 (exc. $\\beta_2$ Quadratic (indv.) < 0.01; $\\beta_2$ and $\\gamma$ Quadratic (strat. unit.) < 0.05 and < 0.01, respectivly; Quadratic model (strat. unit.) < 0.001. *note greek letters should be symbolized, all methods result in failed PDF render*" 
+
+load(file = here::here("data", "model_stats.rda"))
+knitr::kable(model_stats, align = "lcccccr", booktabs = TRUE, caption = table_cap, 
+             longtable = TRUE, digits = c(NA,2,2,5,3,1,3),
+             col.names = c("Method", "$\\alpha$", "$\\gamma$", "$\\beta_2$" ,"RSE", "DF","R^2^"))
+
+#format = "latex", escape = FALSE, double_escape = TRUE
+#renders fine in .rmd
+# probably... "package ‘pandoc’ is not available for this version of R".
+```
+
+# B6/B2 Brightness Ratio as a Predictor
+
+```{r,fig.cap=full_cap, echo=FALSE, out.width= "100%", escape = FALSE}
+fig_lab <- "(\\#fig:log-resid)"
+fig_cap <- "Residuals of the log-log transformation"
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "Log_residuals.jpeg"))
+```
+
+The log-log transformation of the individual fan surfaces was shown be the optimal method for fitting a power-law to the dataset. A plot of residuals further emphasizes this choice (Figure \@ref(fig:log-resid)). Here, the residuals are reasonably homoscedastic with younger fan surfaces trending higher in overall variance. This is likely in response to an increased sample number in this age range as well as more variability in surface composition, and subsequent spectral response, of younger surface minerals. 
+
+Predicted surface ages were calculated for the 33 individual fan surfaces with known absolute ages (Table \@ref(tab:raw-data)) using the log-log transformation model. The bias correction suggested by @baskerville1972 was applied when back-transforming the model following Equation  \@ref(eq:bias-correction). 
+
+\begin{equation}
+   \hat{Y}_bc = e^{\hat{v} + se{^2}/2}
+  (\#eq:bias-correction)
+\end{equation}
+
+Predicted surface ages derived from the B6/B2 brightness ratio were plotted against the known ^10^Be absolute ages in an attempt to further check model accuracy and identify any trends with age (Figure \@ref(fig:age-age). The age prediction errors are reasonably homoscedastic and normally distributed aside from a gap in residuals from -30 to -20 ka. Temporally, the model slightly over predicts at the youngest of fans and increases in variance with age. Relatively low Root Mean Squared Error (`r log_trans_stats_num[1,1]` ka), Mean Absolute Error (`r log_trans_stats_num[2,1]` ka), and Mean Bias Error (`r log_trans_stats_num[3,1]` ka) verify the models overall accuracy and even distribution of age residuals (Table 1 \@ref(tab:log-transform-stats)). 
+
+
+```{r,fig.cap=full_cap, echo=FALSE, out.width= "100%", escape = FALSE}
+fig_lab <- "(\\#fig:age-age)"
+fig_cap <- "Observed versus predicted fan surface age as function of the Band 6/Band 2 predictor variable and log transformed regression (top). A plot of age error versus time (bottomleft) and age error frequency (bottomright) are shown. The transformation is bias corrected as sugested by Baskerville (1972). "
+full_cap <- paste(fig_lab, fig_cap)
+
+include_graphics(here::here("outputs", "Age-Age_plots.jpeg"))
+```
+
+```{r log-transform-stats, echo=FALSE}
+table_lab <- "(#\\tab:log-transform-stats"
+table_cap <- "Log Transformed model statistics. Index statistics (ka) for predicted alluvial fan surface ages as a funtion of Landsat-8 Band6/Band2 spectral ratio. Back-transformation was bias corrected using methods outlined by Baskerville (1972)."
+
+load(file = here::here("data", "log_trans_stats.rda"))
+knitr::kable(log_trans_stats, digits = 1, booktabs = TRUE, longtable = TRUE, caption = table_cap)
+```
+
+# Discussion and Conclusion
+This analysis confirms a strong relation between absolute alluvial fan age and a B6/B2 brightness ratio in Owens Valley, California. It is sensible that a power-law relation is well fitted to the dataset. Power-law relations are a common phenomenon within the natural sciences [@corral2019; clauset2009; phillips1999]. The fractal nature of  geomorphic landscapes has long been known [@mark1984a] and the weathering processes that drive alluvial fan formation at scale will continue to alter fan surfaces at the mineral level over time. In fact, @darcy2018 identifies production of secondary minerals by weathering in this region. Likewise, the rate of soil development and surface sediment weathering for Owens Valley, California has been shown to increase sub-linearly with age following a power-law [@zehfuss2001]. These theories qualitatively support our model results as we would expect the rate of mineral surface weathering and pedogenesis (*i.e.* soil development) to taper off with time. This is shown clearly by the concave-down relation in Figure \@ref(fig:mod-log). The model is seen to provide homoscedastic age residuals with mostly normal distribution. It should be noted that while metrics such as RMSE, MBE, and MAE display relatively low age errors, variance does increase age. However, due to the even distribution of this error in either direction, this can be easily offset by an increased number of spectral spot samples.   
+
+Overall the Band 6/ Band 2 brightness ratio is shown to be a valid predictor of surface age for alluvial fans in Owens Valley, California. While this method is robust for this semi-arid landscape with minimal vegetation, it would be beneficial to test a similar model over alternative landscapes with varying environmental conditions. Additionally, this analysis could be attempted using higher spectral-resolution data (*e.g.* hyperspectral data) in an effort to identify even more robust spectral signatures and relationships with age. 
+
+
+
+# Acknowledgements {-}
+
+Include a list of the packages used in your project and the corresponding citations. 
+```{r, echo=FALSE, results=FALSE}
+loaded_pkgs <- (.packages())
+base_pkgs <- getOption("defaultPackages")
+contrib_pkgs <- loaded_pkgs[!(loaded_pkgs %in% base_pkgs)]
+contrib_pkgs
+
+pkgs_file <- here::here("document_files", "final_packages.bib")
+knitr::write_bib(contrib_pkgs, pkgs_file)
+```
+
+The following packages were used in the production of this document: **float**[@R-float], **forcats**[@R-forcats], **stringr**[@R-stringr], **purrr**[@R-purrr], **readr**[@R-readr], **tidyr**[@R-tidyr], **tibble**[@R-tibble], **ggplot2**[@R-ggplot2], **tidyverse**[@R-tidyverse], **dplyr**[@R-dplyr], **bookdown**[@R-bookdown], **here**[@R-here], **kableExtra**[@R-kableExtra], **knitr**[@R-knitr], and **base**[@R-base].  
+
+\newpage
+
+# References {-}
+
+<div id="refs"></div>
+
+
+
+
+
